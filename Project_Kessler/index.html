@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="style/style.css">
+
+    <style type="text/css" media="print">
+        .noprint {
+            display: none
+        }
+        
+        .print {
+            display: block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="el-header noprint">
+            <div class="icon-btns">
+                <i class="icon-list" @click="changeLeftMenu"></i>
+                <i class="icon-skip_previous" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('first')"></i>
+                <i class="icon-play_arrow prev-icon" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('prev')"></i>
+                <i class="icon-play_arrow" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('next')"></i>
+                <i class="icon-skip_next" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('last')"></i>
+                <select v-model="currentPage">
+                    <option v-for="page in pageNum" v-bind:value="page">page {{ page }}</option>
+                </select>
+                <i class="icon-zoom_in" v-bind:class="{'disabled': zoomNum == 2}" @click="modifyZoom('in')"></i>
+                <select v-model="zoomNum">
+                    <option value="0.5">50%</option>
+                    <option value="0.6">60%</option>
+                    <option value="0.7">70%</option>
+                    <option value="0.8">80%</option>
+                    <option value="0.9">90%</option>
+                    <option value="1.0" selected>100%</option>
+                    <option value="1.1">110%</option>
+                    <option value="1.2">120%</option>
+                    <option value="1.3">130%</option>
+                    <option value="1.4">140%</option>
+                    <option value="1.5">150%</option>
+                    <option value="1.6">160%</option>
+                    <option value="1.7">170%</option>
+                    <option value="1.8">180%</option>
+                    <option value="1.9">190%</option>
+                    <option value="2.0">200%</option>
+                </select>
+                <i class="icon-zoom_out" v-bind:class="{'disabled': zoomNum == 0.5}" @click="modifyZoom('out')"></i>
+                <i class="icon-format_align_left" @click="textAlign = 'left'"></i>
+                <i class="icon-format_align_center" @click="textAlign = 'center'"></i>
+                <i class="icon-format_align_right" @click="textAlign = 'right'"></i>
+                <i class="icon-print" @click="window.print()"></i>
+            </div>
+        </header>
+
+        <aside class="noprint" width="240px" v-show="ifMenuShow">
+            <nav class="tabNav">
+                <ul>
+                    <li v-bind:class="{ 'curr': currentNav == 0 }" @click="currentNav = 0">Page</li>
+                    <li v-bind:class="{ 'curr': currentNav == 1 }" @click="currentNav = 1">Bookmark</li>
+                </ul>
+
+                <div class="clear"></div>
+            </nav>
+
+            <div class="tab-conent scrollbar" v-bind:style="{ height: asideHeight + 'px' }">
+
+            <section v-show="currentNav == 0">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-file-text2"></i> page {{ page }}</li>
+                </ul>
+            </section>
+
+            <section v-show="currentNav == 1">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-turned_in_not"></i> Bookmark {{ page }}</li>
+                </ul>
+            </section>
+        </div>
+
+        </aside>
+        <div class="main scrollbar noprint"  v-bind:style="{ height: mainHeight + 'px' }" v-bind:class="{ 'mainLeftM': ifMenuShow, 'aleft': textAlign === 'left','acenter': textAlign === 'center','aright': textAlign === 'right'}">
+            <div class="conent" v-html="pageContent" v-bind:style="zoomStyle"></div>
+
+            <div class="clear"></div>
+        </div>
+
+        <!--专门只为打印的内容-->
+        <div class="conent print" style="display:none" v-html="pageContent"></div>
+    </div>
+</body>
+<!-- 先引入 Vue -->
+<script src="js/vue.min.js"></script>
+<script>
+
+var app = new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                // visible: false,
+                isCollapse: false,
+                currentNav: 0,
+                activeName2: 'first',
+                pageNum: 1, 
+                currentPage: 1,
+                pageContent: '',
+                asideHeight: 300,
+                mainHeight: 300,
+                ifMenuShow: true,
+                zoomNum: '1.0',
+                textAlign: 'left',
+                zoomStyle: {},
+                pageDatas: ['<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="540.000000" width="960.000000" src ="bgimg/bg00001.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:57.984005px;font-style:normal;font-weight:normal;color:#00FFCC;"><span style="position:absolute;top:176.953445px;left:285.573364px"><nobr>PROJECT <span style="color:#FFFFFF;">KESSLER </span></nobr></span></span></p><p><span style="font-family:Open Sans Semibold;font-size:15.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:292.225006px;left:395.359985px"><nobr>By Órbita Limpia </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="540.000000" width="960.000000" src ="bgimg/bg00002.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:27.959999px;font-style:normal;font-weight:normal;color:#00FFCC;"><span style="position:absolute;top:63.871582px;left:85.215996px"><nobr>PROBLEMÁTICA <span style="color:#FFFFFF;">BASURA ESPACIAL </span></nobr></span><span style="position:absolute;top:181.075119px;left:180.133347px"><nobr><span style="font-family:Open Sans Semibold;font-size:12.024000px;color:#FFFFFF;">1) Imposibilita el envío de satélites al espacio. </span></nobr></span></span></p><p><span style="font-family:Open Sans Semibold;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:259.056000px;left:180.133347px"><nobr>2) Pérdida de los beneficios que nos proporcionan los </nobr></span><span style="position:absolute;top:278.255981px;left:180.133347px"><nobr>satélites en nuestra vida diaria. </nobr></span></span></p><p><span style="font-family:Open Sans Semibold;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:348.789307px;left:180.133347px"><nobr>3) Frecuentes accidentes que aumentan la basura espacial. </nobr></span><span style="position:absolute;top:367.989349px;left:180.133347px"><nobr>En 2009 el Iridium 33 </nobr></span></span></p>','<div style="position:absolute;top:1.333293px;left:0.000000px"><nobr><img height="538.000000" width="960.000000" src ="bgimg/bg00003.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:35.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:53.729736px;left:229.826691px"><nobr>INSPIRACIÓN <span style="color:#00FFCC;">Y EDUCACIÓN </span></nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:191.991745px;left:268.253326px"><nobr>Órbitas de </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:214.391724px;left:268.253326px"><nobr>Kepler </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:380.134918px;left:291.653320px"><nobr>Misiones espaciales </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:400.937592px;left:291.653320px"><nobr>de la NASA </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.983999px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:287.279327px;left:274.079987px"><nobr>Basura </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:308.134888px;left:274.079987px"><nobr>Espacial </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:178.761597px;left:616.706665px"><nobr>Creación </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:199.561584px;left:616.706665px"><nobr>de Juego </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:281.614929px;left:606.906677px"><nobr>Futuros </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:302.414917px;left:606.906677px"><nobr>proyectos </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.960000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:382.534912px;left:552.159973px"><nobr>Creatividad </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="540.000000" width="960.000000" src ="bgimg/bg00004.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:35.040001px;font-style:normal;font-weight:normal;color:#00FFCC;"><span style="position:absolute;top:33.356365px;left:346.373322px"><nobr>EL VIDEOJUEGO </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:150.258377px;left:439.066650px"><nobr>Gdevelop </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:196.971069px;left:352.386658px"><nobr><a href="https://jurorogo.github.io/" target="_blank">https://jurorogo.github.io </a></nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:364.520020px;left:182.559998px"><nobr>Motor Código libre Fiel con la filosofía del hackathon </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:164.880051px;left:108.512001px"><nobr>Desarrollado en </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:184.080032px;left:108.512001px"><nobr>web para mayor </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:203.279984px;left:108.512001px"><nobr>accesibilidad </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="540.000000" width="960.000000" src ="bgimg/bg00005.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:35.040001px;font-style:normal;font-weight:normal;color:#00FFCC;"><span style="position:absolute;top:53.729736px;left:326.240021px"><nobr>CONOCE <span style="color:#FFFFFF;">A ESTELA </span></nobr></span></span></p><p><span style="font-family:Arial;font-size:20.040001px;font-style:normal;font-weight:normal;color:#000066;"><span style="position:absolute;top:422.747009px;left:274.693329px"><nobr>01 02 03 </nobr></span></span></p>','<div style="position:absolute;top:0.000000px;left:0.000000px"><nobr><img height="540.000000" width="960.000000" src ="bgimg/bg00006.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:35.064003px;font-style:normal;font-weight:normal;color:#00FFCC;"><span style="position:absolute;top:15.264852px;left:373.733307px"><nobr>MISIONES </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:124.240028px;left:150.213318px"><nobr>Telescopio </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:143.411057px;left:150.213318px"><nobr>espacial James </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:162.666672px;left:150.213318px"><nobr>Webb. </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:328.146667px;left:150.013336px"><nobr>Vuelta de la </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:347.317719px;left:150.013336px"><nobr>sonda </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:366.573334px;left:150.013336px"><nobr>OSIRIS-REx. </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:337.837738px;left:436.866638px"><nobr>Lunar </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:357.106689px;left:436.866638px"><nobr>Gateway </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:123.986694px;left:695.453369px"><nobr>Viaje </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:143.186691px;left:695.453369px"><nobr>tripulado a </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:162.386719px;left:695.453369px"><nobr>Marte </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:333.386658px;left:691.653320px"><nobr>Síndrome </nobr></span></span></p><p><span style="font-family:Arial;font-size:12.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:352.586670px;left:691.653320px"><nobr>de Kessler </nobr></span></span></p><p><span style="font-family:Arial;font-size:11.520000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:117.272545px;left:421.413330px"><nobr>Proyecto </nobr></span></span></p><p><span style="font-family:Arial;font-size:11.520000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:135.672562px;left:421.413330px"><nobr>ARTEMIS. </nobr></span></span></p><p><span style="font-family:Arial;font-size:11.520000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:154.072556px;left:421.413330px"><nobr>Primera mujer </nobr></span></span></p><p><span style="font-family:Arial;font-size:11.544000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:172.443558px;left:425.733307px"><nobr>en la Luna </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:91.858398px;left:123.456001px"><nobr>1. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:285.938385px;left:123.456001px"><nobr>2. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:96.591759px;left:364.866638px"><nobr>3. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:290.605072px;left:396.000000px"><nobr>4. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:91.831749px;left:640.639954px"><nobr>5. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:285.871735px;left:653.093323px"><nobr>6. </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:510.802399px;left:132.480011px"><nobr>Chip Trozo de metal </nobr></span></span></p><p><span style="font-family:Arial;font-size:14.040000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:511.602417px;left:517.786682px"><nobr>Tanque de Combustible Panel solar </nobr></span></span></p>','<div style="position:absolute;top:1.333293px;left:0.000000px"><nobr><img height="538.000000" width="960.000000" src ="bgimg/bg00007.jpg"/></nobr></div><p><span style="font-family:Arial;font-size:35.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:53.729736px;left:282.373322px"><nobr>SÍNDROME <span style="color:#00FFCC;">DE KESSLER </span></nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:173.826660px;left:182.266663px"><nobr>Cada nuevo </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:202.626678px;left:182.266663px"><nobr>choque en el </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:231.397705px;left:182.266663px"><nobr>espacio </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:260.266693px;left:182.266663px"><nobr>generaría más </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:289.066681px;left:182.266663px"><nobr>basura, que, a </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:317.866669px;left:182.266663px"><nobr>su vez, podría </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.024000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:346.637695px;left:182.266663px"><nobr>chocar con </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:375.493317px;left:182.266663px"><nobr>nuevos </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:404.295990px;left:182.266663px"><nobr>elementos. </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:173.826660px;left:411.266663px"><nobr>Tenemos un </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:202.626678px;left:411.266663px"><nobr>tiempo límite </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:231.426682px;left:411.266663px"><nobr>para </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:260.266693px;left:411.266663px"><nobr>solucionarlo </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:289.066681px;left:411.266663px"><nobr>o no habrá </nobr></span></span></p><p><span style="font-family:Arial;font-size:18.000000px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:317.866669px;left:411.266663px"><nobr>vuelta atrás. </nobr></span></span></p><p><span style="font-family:Arial;font-size:20.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:189.925049px;left:612.733276px"><nobr>Si el tiempo </nobr></span></span></p><p><span style="font-family:Arial;font-size:20.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:221.925079px;left:612.733276px"><nobr>se acaba , se </nobr></span></span></p><p><span style="font-family:Arial;font-size:20.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:253.965057px;left:612.733276px"><nobr>acaba el </nobr></span></span></p><p><span style="font-family:Arial;font-size:20.040001px;font-style:normal;font-weight:normal;color:#FFFFFF;"><span style="position:absolute;top:285.965057px;left:612.733276px"><nobr>juego </nobr></span></span></p>']
+            }
+        },
+        mounted: function() {
+            this.$nextTick(function() {
+                this.pageNum = this.pageDatas.length;
+                this.pageContent = this.pageDatas[0];
+
+                this.setLeftMenuHeight();
+            })
+        },
+        watch: {
+            'currentPage': function(newVal, oldValue) {
+                // console.log('newVal ' + newVal, 'oldValue ' + oldValue);
+                if (newVal) {
+                    this.pageContent = this.pageDatas[this.currentPage - 1];
+                }
+            },
+            'zoomNum': function(newVal, oldValue) {
+                if (newVal) {
+                    this.zoomStyle = {
+                        'transform': 'scale(' + newVal + ')',
+                        '-webkit-transform': 'scale(' + newVal + ')',
+                        '-ms-transform': 'scale(' + newVal + ')',
+                        '-moz-transform': 'scale(' + newVal + ')',
+                        '-o-transform': 'scale(' + newVal + ')'
+                    }
+                }
+            }
+        },
+        methods: {
+            
+            changeCurrentPage: function(methods) {
+                switch (methods) {
+                    case 'first':
+                        this.currentPage = 1;
+                        break;
+                    case 'prev':
+                        if (this.currentPage > 1) {
+                            this.currentPage -= 1;
+                        }
+                        break;
+                    case 'next':
+                        if (this.currentPage < this.pageNum) {
+                            this.currentPage += 1;
+                        }
+                        break;
+                    case 'last':
+                        this.currentPage = this.pageNum;
+                        break;
+                }
+            },
+
+            gotoPage: function(page) {
+                console.log(page);
+                this.currentPage = page;
+            },
+            modifyZoom: function(type) {
+                switch (type) {
+                    case 'in':
+                        if (this.zoomNum < 2) {
+                            // this.zoomNum = (this.zoomNum + 0.1).toFixed(1);
+                            this.zoomNum = (parseFloat(this.zoomNum) + 0.1).toFixed(1);
+                        }
+                        break;
+                    case 'out':
+                        if (this.zoomNum > 0.5) {
+                            this.zoomNum = (parseFloat(this.zoomNum) - 0.1).toFixed(1);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                console.log(this.zoomNum);
+            },
+            setLeftMenuHeight: function() {
+                // this.asideHeight = document.body.scrollHeight - 60;
+                this.mainHeight = document.documentElement.clientHeight - 60 - 20;
+                // 60为头部导航高度， 46为menu高度， 40为上下padding
+                this.asideHeight = this.mainHeight - 20 - 46;
+            },
+            changePage: function(page) {
+                this.currentPage = page;
+                // this.pageContent = this.pageDatas[page - 1];
+            },
+            changeLeftMenu: function() {
+                this.ifMenuShow = !this.ifMenuShow;
+            }
+        }
+    });
+
+function gotoPage(page) {
+    console.log(page);
+    app.gotoPage(page);
+}
+
+</script>
+
+</html>

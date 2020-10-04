@@ -101,6 +101,15 @@ div#CONTAINER {
     font-size: 0;
 }
 
+div#CONTAINER1 {
+    margin: 10px 300px auto;
+    position: relative;
+    width: 960px;
+    height: 540px;
+    border-radius: 8px;
+    font-size: 0;
+}
+
 h1 {
     margin: 40px 0 40px;
     text-align: center;

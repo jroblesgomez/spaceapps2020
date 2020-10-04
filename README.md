@@ -9,4 +9,4 @@
 - Manuel Carbonell
 - Cristian Vera
 
-### [Presentación](https://onedrive.live.com/view.aspx?resid=4DCA72B2E86E6957!1140&ithint=file%2cpptx&authkey=!AHe2EBBvIBnQ-eY)
+### [Presentación](https://1drv.ms/p/s!AldpbuiycspNiHSPBmPzkGc9u-UD?e=HCZtDu)

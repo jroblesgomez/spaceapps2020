@@ -97,9 +97,9 @@ input.INPUT_CONTROL {
 div#CANVAS {
     background-color: transparent;
     background-image: url(images/estrellas.png);
-    width: 800px;
+    width: 900px;
     height: 700px;
-    float: left;
+    float: leftcent;
     border-radius: 35px 35px 35px 35px;
     -moz-border-radius: 35px 35px 35px 35px;
 }

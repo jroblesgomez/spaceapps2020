@@ -29,6 +29,12 @@ div#FOOTER {
     text-align: center;
     padding-right: 30px;
     font-size: 16px;
+    color: #E0E0E9;
+    border-bottom: 1px dotted #202089;
+}
+
+footer {
+    border-bottom: 1px dotted #202089;
 }
 
 

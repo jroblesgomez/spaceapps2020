@@ -1,7 +1,7 @@
 nav {
     margin: 27px auto 0;
     position: relative;
-    width: 510px;
+    width: 520px;
     height: 50px;
     background-color: #34495e;
     border-radius: 8px;
@@ -44,7 +44,7 @@ a:nth-child(3) {
 }
 
 a:nth-child(4) {
-    width: 100px;
+    width: 110px;
 }
 
 a:nth-child(5) {
@@ -74,7 +74,7 @@ a:nth-child(3):hover~.animation {
 
 nav .start-blog,
 a:nth-child(4):hover~.animation {
-    width: 100px;
+    width: 110px;
     left: 310px;
     background-color: #9b59b6;
 }
@@ -82,7 +82,7 @@ a:nth-child(4):hover~.animation {
 nav .start-contact,
 a:nth-child(5):hover~.animation {
     width: 100px;
-    left: 410px;
+    left: 420px;
     background-color: #33ff83;
 }
 
